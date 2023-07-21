@@ -72,6 +72,37 @@ const getTrainSchedule = async (req, res) => {
   }
 };
 
+
+const getSingleTrainData = async (req, res) => {
+  const { trainNumber } = req.params;
+  try {
+    const auth_token = await getAuthToken();
+
+    if (!auth_token) {
+      res.status(500).json({ error: 'Failed to obtain the authorization token' });
+      return;
+    }
+
+    const response = await axios.get(`http://20.244.56.144/train/trains/${trainNumber}`, {
+      headers: {
+        Authorization: `Bearer ${auth_token}`,
+      },
+    });
+
+    if (!response.data) {
+      throw new Error('No train data found for the given train number.');
+    }
+
+    res.status(200).json(response.data);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+
+};
+
 module.exports = {
   getTrainSchedule,
+  getSingleTrainData
 };
